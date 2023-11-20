@@ -199,34 +199,46 @@ class MapSampleState extends State<MapSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        /*markers: {
-          const Marker(
-            markerId: MarkerId('Sydney'),
-            position: LatLng(37.43296265331129, -122.08832357078792),
-          )},*/
-        markers:{
-          _kGooglePlexMarker,
-          //_kLakeMarker
-        },
-        polylines:{
-          _kPolyline,
-        },
-        polygons:{
-          _kPolygon,
-        },
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: const Text('To the lake!'),
-        icon: const Icon(Icons.directions_boat),
-      ),
+      appBar: AppBar(title:Text('Google Maps'),),
+      body:Column(
+        children: [
+          Row(children: [
+            Expanded(child: TextFormField()),
+            IconButton(onPressed: (){},icon:Icon(Icons.search),),
+          ],),
+          Expanded(
+            child: GoogleMap(
+              mapType: MapType.hybrid,
+              initialCameraPosition: _kGooglePlex,
+              /*markers: {
+                const Marker(
+                  markerId: MarkerId('Sydney'),
+                  position: LatLng(37.43296265331129, -122.08832357078792),
+                )},*/
+              markers:{
+                _kGooglePlexMarker,
+                //_kLakeMarker
+              },
+              polylines:{
+                _kPolyline,
+              },
+              polygons:{
+                _kPolygon,
+              },
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+            ),
+          ),
+          /*floatingActionButton: FloatingActionButton.extended(
+            onPressed: _goToTheLake,
+            label: const Text('To the lake!'),
+            icon: const Icon(Icons.directions_boat),
+          ),*/
+        ],
+      )
     );
+
   }
 
   Future<void> _goToTheLake() async {
