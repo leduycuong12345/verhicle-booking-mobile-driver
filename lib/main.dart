@@ -143,6 +143,7 @@ class MapSample extends StatefulWidget {
 class MapSampleState extends State<MapSample> {
   final Completer<GoogleMapController> _controller =
   Completer<GoogleMapController>();
+  TextEditingController _searchController=TextEditingController();
   /*static const _initialCameraPosition = CameraPosition(
     target:LatLng(37.773972,-122.431297),
     zoom: 11.5,
@@ -203,7 +204,14 @@ class MapSampleState extends State<MapSample> {
       body:Column(
         children: [
           Row(children: [
-            Expanded(child: TextFormField()),
+            Expanded(child: TextFormField(
+              controller:_searchController,
+              textCapitalization:TextCapitalization.words ,
+              decoration: InputDecoration(hintText:'Search by City'),
+              onChanged:(value){
+                print(value);
+              },
+            )),
             IconButton(onPressed: (){},icon:Icon(Icons.search),),
           ],),
           Expanded(
