@@ -144,6 +144,12 @@ class MapSampleState extends State<MapSample> {
   final Completer<GoogleMapController> _controller =
   Completer<GoogleMapController>();
   TextEditingController _searchController=TextEditingController();
+
+  Set<Marker> _markers=Set<Marker>();
+  Set<Polygon> _polygons=Set<Polygon>();
+  List<LatLng> polygonLatLngs=<LatLng>[];
+
+  int _polygonIdCounter =1;
   /*static const _initialCameraPosition = CameraPosition(
     target:LatLng(37.773972,-122.431297),
     zoom: 11.5,
@@ -156,47 +162,45 @@ class MapSampleState extends State<MapSample> {
   void dispose(){
     _googleMapController.dispose();
     super.dispose();
-  }*/
+  }
+
+   */
   static const CameraPosition _kLake = CameraPosition(
       bearing: 192.8334901395799,
       target: LatLng(37.43296265331129, -122.08832357078792),
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 11.5,
-  );
-  static const Marker _kGooglePlexMarker=Marker(
-    markerId:MarkerId ('_kGooglePlex'),
-    infoWindow: InfoWindow(title:'Google Plex'),
-    icon:BitmapDescriptor.defaultMarker,
-    position: LatLng(37.43296265331129, -122.08832357078792),
-  );
-  static const Marker _kLakeMarker=Marker(
-    markerId:MarkerId ('_kLakeMarker'),
-    infoWindow: InfoWindow(title:'Google Plex'),
-    icon:BitmapDescriptor.defaultMarker,
-    position: LatLng(37.43296265331129, -122),
-  );
-  static final Polyline _kPolyline=Polyline(
-      polylineId: PolylineId('_kPolyline'),
-      points:[
-        LatLng(37.43296265331129, -122.08832357078792),
-        LatLng(37.43296265331129, -122),
-      ],
-      width:5,
-  );
-  static final Polygon _kPolygon=Polygon(
-      polygonId:PolygonId('_kPolygon'),
-      points:[
-        LatLng(37.43296265331129, -122.08832357078792),
-        LatLng(37.43296265331129, -122),
-        LatLng(37.41, -122.082),
-        LatLng(37.435, -122.083),
-      ],
-      strokeWidth: 5,
-      fillColor: Colors.transparent,
-  );
+  @override
+  void initState(){
+    super.initState();
+
+    _setMarker(LatLng(37.43296265331129, -122.08832357078792));
+  }
+
+  void _setMarker(LatLng point)
+  {
+    setState((){
+      _markers.add(
+        Marker(
+          markerId:MarkerId('marker'),
+          position: point,
+        ),
+      );
+    });
+  }
+  void _setPolygon(){
+    final String polygonIdVal='polygon_$_polygonIdCounter';
+
+    _polygons.add(
+        Polygon(
+            polygonId:PolygonId(polygonIdVal),
+            points:polygonLatLngs,
+            strokeWidth:2,
+            fillColor: Colors.transparent,
+        ),
+    );
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,32 +226,20 @@ class MapSampleState extends State<MapSample> {
           Expanded(
             child: GoogleMap(
               mapType: MapType.hybrid,
-              initialCameraPosition: _kGooglePlex,
-              /*markers: {
-                const Marker(
-                  markerId: MarkerId('Sydney'),
-                  position: LatLng(37.43296265331129, -122.08832357078792),
-                )},*/
-              markers:{
-                _kGooglePlexMarker,
-                //_kLakeMarker
-              },
-              polylines:{
-                _kPolyline,
-              },
-              polygons:{
-                _kPolygon,
-              },
+              markers:_markers,
+              polygons:_polygons,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
+              initialCameraPosition: _kLake,
+              onTap: (point){
+                setState(() {
+                  polygonLatLngs.add(point);
+                  _setPolygon();
+                });
+              },
             ),
           ),
-          /*floatingActionButton: FloatingActionButton.extended(
-            onPressed: _goToTheLake,
-            label: const Text('To the lake!'),
-            icon: const Icon(Icons.directions_boat),
-          ),*/
         ],
       )
     );
@@ -262,11 +254,10 @@ class MapSampleState extends State<MapSample> {
         CameraUpdate.newCameraPosition(
            CameraPosition(target:LatLng(lat,lng),zoom:12),
     ));
+
+    _setMarker(LatLng(lat,lng));
   }
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
-  }
+
 /*void _addMarker(LatLng pos)
   {
     if(_origin == null || (_origin != null && _destination !=null))
