@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'location_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -212,7 +212,12 @@ class MapSampleState extends State<MapSample> {
                 print(value);
               },
             )),
-            IconButton(onPressed: (){},icon:Icon(Icons.search),),
+            IconButton(
+              onPressed: () async {
+                var place=await LocationService().getPlace(_searchController.text);
+                _goToPlace(place);
+            },
+              icon:Icon(Icons.search),),
           ],),
           Expanded(
             child: GoogleMap(
@@ -249,6 +254,15 @@ class MapSampleState extends State<MapSample> {
 
   }
 
+  Future<void> _goToPlace(Map<String,dynamic> place) async {
+    final double lat=place['geometry']['location']['lat'];
+    final double lng=place['geometry']['location']['lng'];
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+           CameraPosition(target:LatLng(lat,lng),zoom:12),
+    ));
+  }
   Future<void> _goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
     await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
