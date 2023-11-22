@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'Controller/LoginController.dart';
 import 'location_service.dart';
 
 void main() {
@@ -40,7 +41,8 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home:const MapSample(),
+      //home:const MapSample(),
+      home: LoginScreen(),
     );
   }
 }
