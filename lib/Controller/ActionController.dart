@@ -58,7 +58,7 @@ class ActionMapState extends State<ActionScreen> {
         mapType: MapType.hybrid,
         initialCameraPosition: CameraPosition(
           target: LatLng(_pos.latitude,_pos.longitude),
-          zoom: 11.5,
+          zoom: 18,
         ),
         markers:{
           Marker(
@@ -90,9 +90,11 @@ class ActionMapState extends State<ActionScreen> {
               //khong tim thay khach hang
             }
         } ,
+
         label: const Text('Tìm kiếm khách hàng'),
         icon: const Icon(Icons.car_rental),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
   Future<Response> _postRequestToSearchForClient() async
@@ -111,7 +113,7 @@ class ActionMapState extends State<ActionScreen> {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(target:LatLng(lat,lng),zoom:12),
+          CameraPosition(target:LatLng(lat,lng),zoom:19),
         ));
 
     _setMarker(LatLng(lat,lng));
