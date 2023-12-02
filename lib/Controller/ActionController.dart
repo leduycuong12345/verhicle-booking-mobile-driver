@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart';
 
 import '../Model/Account.dart';
 import '../Model/Tokens.dart';
 import '../Service/DriverService/DriverService.dart';
+import '../Service/GoogleService/location_service.dart';
 import '../Service/LoginService/APITokensHolder.dart';
 class ActionScreen extends StatefulWidget {
   late Tokens _tokens;
@@ -35,8 +37,14 @@ class ActionMapState extends State<ActionScreen> {
   Completer<GoogleMapController>();
   late Tokens _tokens;
   LatLng _pos;
-  Set<Marker> _markers=Set<Marker>();
 
+  Set<Marker> _markers=Set<Marker>();
+  Set<Polygon> _polygons=Set<Polygon>();
+  Set<Polyline> _polylines=Set<Polyline>();
+  List<LatLng> polygonLatLngs=<LatLng>[];
+
+  int _polygonIdCounter =1;
+  int _polylineIdCounter =1;
   LatLng get pos => _pos;
 
   set pos(LatLng value) {
@@ -51,28 +59,80 @@ class ActionMapState extends State<ActionScreen> {
   void initState(){
     super.initState();
   }
+  /*void _setMarker(LatLng point)
+  {
+    setState((){
+      _markers.add(
+        Marker(
+          markerId:MarkerId('marker'),
+          position: point,
+        ),
+      );
+    });
+  }*/
+  void _setPolygon(){
+    final String polygonIdVal='polygon_$_polygonIdCounter';
+
+    _polygons.add(
+      Polygon(
+        polygonId:PolygonId(polygonIdVal),
+        points:polygonLatLngs,
+        strokeWidth:2,
+        fillColor: Colors.transparent,
+      ),
+    );
+
+  }
+  void _setPolyline(List<PointLatLng> points){
+    final String polylineIdVal='polyline_$_polylineIdCounter';
+    _polylineIdCounter++;
+
+    _polylines.add(
+      Polyline(
+          polylineId: PolylineId(polylineIdVal),
+          width:2,
+          color:Colors.blue,
+          points:points
+              .map((point)=>LatLng(point.latitude,point.longitude),
+          ).toList()
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title:Text('Google Maps'),),
       body:GoogleMap(
         mapType: MapType.hybrid,
-        initialCameraPosition: CameraPosition(
+        markers:_markers,
+        polygons: _polygons,
+        polylines: _polylines,
+        initialCameraPosition: CameraPosition(//starter from driver position
           target: LatLng(_pos.latitude,_pos.longitude),
           zoom: 18,
         ),
-        markers:{
-          Marker(
+        /*markers:{
+          Marker( //driver marker
           markerId:MarkerId ('_driverPos'),
           infoWindow: InfoWindow(title:'Tài xế'),
           icon:BitmapDescriptor.defaultMarker,
           position: LatLng(_pos.latitude,_pos.longitude),
           ),
-        },
+        markers: {
+          _markers,
+        },*/
         onMapCreated: (GoogleMapController controller) async{
           _controller.complete(controller);
 
           //LatLng pos=await DriverService(this._tokens).getCurrentDriverPosition();
           //await _goToPlace(pos.latitude,pos.longitude);
+        },
+        onTap: (point)
+        {
+          setState(() {
+            polygonLatLngs.add(point);
+            _setPolygon();
+          });
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -84,6 +144,13 @@ class ActionMapState extends State<ActionScreen> {
 
               var responseData = json.decode(res.body);
               _goToPlace(responseData["gps_lat"],responseData["gps_long"]);
+
+              var directions=await  LocationService().getDirection(
+                  _originController.text, _destinationController.text
+              );
+              _goToPlace(directions['start_location']['lat'],directions['start_location']['lng']);
+
+              _setPolyline(directions['polyline_decoded']);
             }
           else
             {
@@ -118,6 +185,7 @@ class ActionMapState extends State<ActionScreen> {
 
     _setMarker(LatLng(lat,lng));
   }
+
   void _setMarker(LatLng point)
   {
     setState((){

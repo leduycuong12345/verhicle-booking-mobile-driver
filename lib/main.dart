@@ -4,7 +4,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'Controller/LoginController.dart';
-import 'location_service.dart';
+import 'Service/GoogleService/location_service.dart';
 
 void main() {
   runApp(const MyApp());
