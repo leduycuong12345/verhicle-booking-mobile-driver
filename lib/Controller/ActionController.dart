@@ -37,6 +37,7 @@ class ActionMapState extends State<ActionScreen> {
   Completer<GoogleMapController>();
   late Tokens _tokens;
   LatLng _pos;
+  bool isWorking=false;//if success to get response after send post request : "../api/v1/driver/join"
 
   Set<Marker> _markers=Set<Marker>();
   Set<Polygon> _polygons=Set<Polygon>();
@@ -140,9 +141,9 @@ class ActionMapState extends State<ActionScreen> {
           Response res =await _postRequestToSearchForClient();
           if(res.statusCode==200)
             {
-              print("found client status: "+res.statusCode.toString()+ "json:"+res.body.toString());
-
-              var responseData = json.decode(res.body);
+              print("found client status: "+res.statusCode.toString()+ "content: "+res.body.toString());
+              isWorking=true;//trigger on 
+              /*var responseData = json.decode(res.body);
               _goToPlace(responseData["gps_lat"],responseData["gps_long"]);
 
               var directions=await  LocationService().getDirection(
@@ -150,7 +151,7 @@ class ActionMapState extends State<ActionScreen> {
               );
               _goToPlace(directions['start_location']['lat'],directions['start_location']['lng']);
 
-              _setPolyline(directions['polyline_decoded']);
+              _setPolyline(directions['polyline_decoded']);*/
             }
           else
             {

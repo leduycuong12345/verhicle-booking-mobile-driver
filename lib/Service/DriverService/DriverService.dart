@@ -10,7 +10,7 @@ import 'package:geolocator/geolocator.dart';
 class DriverService{
   late APIConnection _conn;
   late Tokens _tokens;
-  String searchClientURL="http://10.0.2.2:8069/api/v1/driver/search";
+  String searchClientURL="http://10.0.2.2:8069/api/v1/driver/join";
   DriverService(this._tokens)
   {
     _conn=APIConnection(_tokens);
