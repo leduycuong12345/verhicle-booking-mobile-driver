@@ -148,31 +148,8 @@ class ActionMapState extends State<ActionScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed:()async{
-          socketConnection.initzJoinStage(pos, tokens.accessToken);
-          await socketConnection.join();
-          await _joinStageNotification(); // finish stage 1
-          _client= await socketConnection.retriveClientInfo();
-          String statusCode =_client.statusCode;//await _postRequestToSearchForClient();
-          if(statusCode=="200")
-            {
-              print("join the wait line with status: "+statusCode);
-              isWorking=true;//trigger on
-
-              //_goToPlace(_client.gpsLat,_client.gpsLong);// client place
-
-              var directions=await  LocationService().getSocketDirection(
-                  _pos.latitude, _pos.longitude,
-                       _client.gpsLat ,_client.gpsLong
-              );
-              print("json String: "+directions.toString());
-              _goToPlace(directions['end_location']['lat'],directions['end_location']['lng']);
-              _setDriverMarker(LatLng(_pos.latitude, _pos.longitude));
-              _setPolyline(directions['polyline_decoded']);
-            }
-          else
-            {
-              //khong tim thay khach hang hoca loi khac
-            }
+          await driverConnectToServer(); // finish stage 1
+          await receiveClientInfo_Stage();//finish stage 2
         } ,
 
         label: const Text('Tìm kiếm khách hàng'),
@@ -181,6 +158,40 @@ class ActionMapState extends State<ActionScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
 
     );
+  }
+
+  Future<void> driverConnectToServer() async {
+    socketConnection.initzJoinStage(pos, tokens.accessToken);
+    await socketConnection.join();
+    await _joinStageNotification();
+  }
+
+  Future<void> receiveClientInfo_Stage() async {
+    _client= await socketConnection.retriveClientInfo();
+    String statusCode =_client.statusCode;//await _postRequestToSearchForClient();
+    if(statusCode=="200")
+      {
+        print("join the wait line with status: "+statusCode);
+        isWorking=true;//trigger on
+
+        //_goToPlace(_client.gpsLat,_client.gpsLong);// client place
+
+        var directions=await  LocationService().getSocketDirection(
+            _pos.latitude, _pos.longitude,
+                 _client.gpsLat ,_client.gpsLong
+        );
+        print("json String: "+directions.toString());
+        _goToPlace(directions['end_location']['lat'],directions['end_location']['lng']);
+        _setDriverMarker(LatLng(_pos.latitude, _pos.longitude));
+        _setPolyline(directions['polyline_decoded']);
+
+        _successReceiveClientInfoNotification();
+      }
+    else
+      {
+        //khong tim thay khach hang hoca loi khac
+        _failReceiveClientInfoNotification();
+      }
   }
   /*Future<String> _postRequestToSearchForClient() async
   {
@@ -212,7 +223,8 @@ class ActionMapState extends State<ActionScreen> {
         Marker(
           markerId:MarkerId('_clientPos'),
           position: point,
-          infoWindow: InfoWindow(title:'Tên khách hàng: '+_client.tenkhachhang ,snippet:'Số điện thoai:'+_client.sdt),
+          infoWindow: InfoWindow(title:'Khách hàng:${_client.tenkhachhang},SĐT:${_client.sdt}' ,
+              snippet:'${_client.sonha} ${_client.duong} ${_client.phuong} ${_client.quan} ${_client.thanhpho}'),
           icon:BitmapDescriptor.defaultMarker,
         ),
       );
@@ -231,6 +243,58 @@ class ActionMapState extends State<ActionScreen> {
       );
     });
   }
+  Future<void> _successReceiveClientInfoNotification() async
+  {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
+            SizedBox(width: 8), // Adjust the spacing as needed
+            Expanded(
+              child: Text(
+                'Nhận được thông tin khách hàng',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.black.withOpacity(0.5),
+        duration: Duration(seconds: 15),
+      ),
+    );
+  }
+  Future<void> _failReceiveClientInfoNotification() async
+  {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
+            SizedBox(width: 8), // Adjust the spacing as needed
+            Expanded(
+              child: Text(
+                'Không được thông tin khách hàng',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.black.withOpacity(0.5),
+        duration: Duration(seconds: 15),
+      ),
+    );
+  }
   Future<void> _joinStageNotification() async
   {
       String status =await socketConnection.isJoinTheSearchClient();
@@ -238,18 +302,18 @@ class ActionMapState extends State<ActionScreen> {
       // Display the half-invisible notification
       if(status=="200") {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(
-                  Icons.check,
-                  color: Colors.green,
-                ),
-                SizedBox(width: 8), // Adjust the spacing as needed
-                Expanded(
-                  child: Text(
-                    'Đã thành công gia nhập hàng đợi để tìm kiếm khách hàng',
-                    overflow: TextOverflow.ellipsis,
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                  SizedBox(width: 8), // Adjust the spacing as needed
+                  Expanded(
+                    child: Text(
+                      'Đã thành công gia nhập hàng đợi để tìm kiếm khách hàng',
+                      overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                     style: TextStyle(color: Colors.white),
                   ),

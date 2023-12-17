@@ -89,11 +89,18 @@ class SocketDriverService{
         return _client;
       }
   }
+  int count=0;
   Future<String> isJoinTheSearchClient() async
   {
     if(isJoin=="")
     {
       print('no result from join stage');
+      if(count==3)
+        {
+          join();
+          count=0;
+        }
+      count++;
       //if not initz yet then wait for 5 sec then call this againt
       await Future.delayed(const Duration(seconds: 5));
       return isJoinTheSearchClient();
