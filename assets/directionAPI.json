@@ -1,0 +1,278 @@
+{
+  "geocoded_waypoints": [
+    {
+      "geocoder_status": "OK",
+      "place_id": "ChIJ_0BG_U8ndTER7_0o-zkOS6Q",
+      "types": [
+        "premise"
+      ]
+    },
+    {
+      "geocoder_status": "OK",
+      "place_id": "ChIJcabGBbggdTER9w9bqsvzICo",
+      "types": [
+        "premise"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "bounds": {
+        "northeast": {
+          "lat": 10.8592972,
+          "lng": 106.8310547
+        },
+        "southwest": {
+          "lat": 10.8410339,
+          "lng": 106.8075077
+        }
+      },
+      "copyrights": "Map data ©2023",
+      "legs": [
+        {
+          "distance": {
+            "text": "4.9 km",
+            "value": 4896
+          },
+          "duration": {
+            "text": "14 mins",
+            "value": 813
+          },
+          "end_address": "13 Đường 28, Khu phố Long Hòa, Quận 9, Thành phố Hồ Chí Minh, Vietnam",
+          "end_location": {
+            "lat": 10.8477958,
+            "lng": 106.8304146
+          },
+          "start_address": "367 Nguyễn Hữu Nam, Phường Tân Phú, Quận 9, Thành phố Hồ Chí Minh, Vietnam",
+          "start_location": {
+            "lat": 10.8592972,
+            "lng": 106.8075077
+          },
+          "steps": [
+            {
+              "distance": {
+                "text": "0.3 km",
+                "value": 282
+              },
+              "duration": {
+                "text": "1 min",
+                "value": 60
+              },
+              "end_location": {
+                "lat": 10.8582347,
+                "lng": 106.8094631
+              },
+              "html_instructions": "Head <b>east</b> on <b>Đường số 197</b>",
+              "polyline": {
+                "points": "s}gaA}y{jSDkC\\q@R]HKPSFE^EN@@?PDF?D?@?@A@C?C?A@GBIBSBUR}@"
+              },
+              "start_location": {
+                "lat": 10.8592972,
+                "lng": 106.8075077
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "0.2 km",
+                "value": 216
+              },
+              "duration": {
+                "text": "1 min",
+                "value": 44
+              },
+              "end_location": {
+                "lat": 10.8567491,
+                "lng": 106.8083774
+              },
+              "html_instructions": "Turn <b>right</b>",
+              "maneuver": "turn-right",
+              "polyline": {
+                "points": "}vgaAcf|jStAn@f@Tr@XhAj@@@d@XBB@@@B?DAVAF"
+              },
+              "start_location": {
+                "lat": 10.8582347,
+                "lng": 106.8094631
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "0.1 km",
+                "value": 147
+              },
+              "duration": {
+                "text": "1 min",
+                "value": 39
+              },
+              "end_location": {
+                "lat": 10.8554761,
+                "lng": 106.8080137
+              },
+              "html_instructions": "Turn <b>left</b> toward <b>Hẻm 41</b>",
+              "maneuver": "turn-left",
+              "polyline": {
+                "points": "umgaAk_|jSjCh@B@fAT@?b@F"
+              },
+              "start_location": {
+                "lat": 10.8567491,
+                "lng": 106.8083774
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "0.2 km",
+                "value": 162
+              },
+              "duration": {
+                "text": "1 min",
+                "value": 47
+              },
+              "end_location": {
+                "lat": 10.8540392,
+                "lng": 106.8079707
+              },
+              "html_instructions": "Continue onto <b>Hẻm 41</b>",
+              "polyline": {
+                "points": "wegaAa}{jSH?RB\\BZ@@?d@BNB\\@H@X@@?H?HANEf@G"
+              },
+              "start_location": {
+                "lat": 10.8554761,
+                "lng": 106.8080137
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "0.6 km",
+                "value": 649
+              },
+              "duration": {
+                "text": "2 mins",
+                "value": 95
+              },
+              "end_location": {
+                "lat": 10.8558137,
+                "lng": 106.8136006
+              },
+              "html_instructions": "Turn <b>left</b> onto <b>Cầu Xây</b>",
+              "maneuver": "turn-left",
+              "polyline": {
+                "points": "w|faAy|{jSs@gCACQs@YkAo@{CEQa@wAU_AOo@EMGSMg@I]Oe@AG_@oACGAEQ_AIu@Gi@?kA?C"
+              },
+              "start_location": {
+                "lat": 10.8540392,
+                "lng": 106.8079707
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "0.6 km",
+                "value": 622
+              },
+              "duration": {
+                "text": "1 min",
+                "value": 86
+              },
+              "end_location": {
+                "lat": 10.8502176,
+                "lng": 106.8136611
+              },
+              "html_instructions": "Turn <b>right</b> after Cửa Hàng Gas Đình Văn (on the right)",
+              "maneuver": "turn-right",
+              "polyline": {
+                "points": "yggaA_`}jSz@?l@AR?Z?J?\\Ad@?`@@d@AB?N?P?T?r@AN?lBCD?B?X?T?b@AN?P?l@?\\@|@?T?T?`A?n@?p@?f@Az@?"
+              },
+              "start_location": {
+                "lat": 10.8558137,
+                "lng": 106.8136006
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "2.2 km",
+                "value": 2159
+              },
+              "duration": {
+                "text": "5 mins",
+                "value": 320
+              },
+              "end_location": {
+                "lat": 10.8428187,
+                "lng": 106.8286714
+              },
+              "html_instructions": "Continue onto <b>Nguyễn Văn Tăng</b>",
+              "polyline": {
+                "points": "{dfaAk`}jSPKf@[l@c@HGBAxAeAp@e@FELIh@YLI\\UZUn@e@dAu@x@o@xAcARMDEb@[v@k@`@Yx@e@`Aq@l@a@bBmANMn@c@PMNKPMpA{@j@a@DCHKPO`@k@Xa@FKd@s@|@_BJOz@yALQP]BGDGNYPUNQPYJUXi@FW@CBW@a@?C@qAHeBD{A@OHmBH}AD}AToCDk@@_@C[?CEWI]GOKQ}@oAw@cAACaAgAo@y@sAgB"
+              },
+              "start_location": {
+                "lat": 10.8502176,
+                "lng": 106.8136611
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "0.6 km",
+                "value": 580
+              },
+              "duration": {
+                "text": "2 mins",
+                "value": 90
+              },
+              "end_location": {
+                "lat": 10.8474581,
+                "lng": 106.8310547
+              },
+              "html_instructions": "Continue onto <b>Nguyễn Xiển</b>",
+              "polyline": {
+                "points": "svdaAe~_kSOOc@_@_Ao@c@Q]MEAYMwAg@QGo@UMEaA[{Am@IEKE}@Ya@Oe@Ss@YGCA?aA[w@_@o@Q"
+              },
+              "start_location": {
+                "lat": 10.8428187,
+                "lng": 106.8286714
+              },
+              "travel_mode": "DRIVING"
+            },
+            {
+              "distance": {
+                "text": "79 m",
+                "value": 79
+              },
+              "duration": {
+                "text": "1 min",
+                "value": 32
+              },
+              "end_location": {
+                "lat": 10.8477958,
+                "lng": 106.8304146
+              },
+              "html_instructions": "Turn <b>left</b> onto <b>Đường số 28</b><div style=\"font-size:0.9em\">Destination will be on the left</div>",
+              "maneuver": "turn-left",
+              "polyline": {
+                "points": "sseaAam`kSA@]t@c@fA"
+              },
+              "start_location": {
+                "lat": 10.8474581,
+                "lng": 106.8310547
+              },
+              "travel_mode": "DRIVING"
+            }
+          ],
+          "traffic_speed_entry": [],
+          "via_waypoint": []
+        }
+      ],
+      "overview_polyline": {
+        "points": "s}gaA}y{jSDkC\\q@\\i@XY^EN@RDL?DIHg@VsA|BdA|BdAf@ZDD@HC^nCj@hATl@FnAH|AJn@?v@Mu@kCk@_Cu@mDgAgE{AmFSeAQ_B?oAhBAxAApB?rFE~F?|C?xAAz@?PKtA_ALI`D{Bv@c@x@k@hGoEtB{AjEsCtDmCrBuAp@e@Z[hBmC~DcH`@g@\\o@Xi@FWD[L}EZwHD}AToCFkAC_@Ou@Sa@uBsCcAkAcCaDs@o@_Ao@c@Qc@OqBu@qC_AeBs@iA_@cCaAcA[w@_@o@Q_@v@c@fA"
+      },
+      "summary": "Nguyễn Văn Tăng",
+      "warnings": [],
+      "waypoint_order": []
+    }
+  ],
+  "status": "OK"
+}

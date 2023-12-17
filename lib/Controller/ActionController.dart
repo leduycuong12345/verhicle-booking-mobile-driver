@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart';
 
 import '../Model/Account.dart';
+import '../Model/CallCenter.dart';
 import '../Model/Tokens.dart';
 import '../Service/DriverService/DriverService.dart';
+import '../Service/DriverService/SocketDriverService.dart';
 import '../Service/GoogleService/location_service.dart';
 import '../Service/LoginService/APITokensHolder.dart';
 class ActionScreen extends StatefulWidget {
@@ -38,7 +42,8 @@ class ActionMapState extends State<ActionScreen> {
   late Tokens _tokens;
   LatLng _pos;
   bool isWorking=false;//if success to get response after send post request : "../api/v1/driver/join"
-
+  SocketDriverService socketConnection=new SocketDriverService();
+  late CallCenter _client;
   Set<Marker> _markers=Set<Marker>();
   Set<Polygon> _polygons=Set<Polygon>();
   Set<Polyline> _polylines=Set<Polyline>();
@@ -91,7 +96,7 @@ class ActionMapState extends State<ActionScreen> {
     _polylines.add(
       Polyline(
           polylineId: PolylineId(polylineIdVal),
-          width:2,
+          width:7,
           color:Colors.blue,
           points:points
               .map((point)=>LatLng(point.latitude,point.longitude),
@@ -104,7 +109,7 @@ class ActionMapState extends State<ActionScreen> {
     return Scaffold(
       appBar: AppBar(title:Text('Google Maps'),),
       body:GoogleMap(
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         markers:_markers,
         polygons: _polygons,
         polylines: _polylines,
@@ -124,38 +129,49 @@ class ActionMapState extends State<ActionScreen> {
         },*/
         onMapCreated: (GoogleMapController controller) async{
           _controller.complete(controller);
-
+          _setDriverMarker(_pos);
           //LatLng pos=await DriverService(this._tokens).getCurrentDriverPosition();
           //await _goToPlace(pos.latitude,pos.longitude);
         },
-        onTap: (point)
-        {
-          setState(() {
-            polygonLatLngs.add(point);
-            _setPolygon();
-          });
-        },
+          zoomControlsEnabled: false,
+          zoomGesturesEnabled: true,
+          scrollGesturesEnabled: true,
+          compassEnabled: true,
+          rotateGesturesEnabled: true,
+          mapToolbarEnabled: true,
+          tiltGesturesEnabled: true,
+          gestureRecognizers: < Factory < OneSequenceGestureRecognizer >> [
+            new Factory < OneSequenceGestureRecognizer > (
+                  () => new EagerGestureRecognizer(),
+            ),
+          ].toSet() // Enable zoom controls
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed:()async{
-          Response res =await _postRequestToSearchForClient();
-          if(res.statusCode==200)
+          socketConnection.initzJoinStage(pos, tokens.accessToken);
+          await socketConnection.join();
+          await _joinStageNotification(); // finish stage 1
+          _client= await socketConnection.retriveClientInfo();
+          String statusCode =_client.statusCode;//await _postRequestToSearchForClient();
+          if(statusCode=="200")
             {
-              print("found client status: "+res.statusCode.toString()+ "content: "+res.body.toString());
-              isWorking=true;//trigger on 
-              /*var responseData = json.decode(res.body);
-              _goToPlace(responseData["gps_lat"],responseData["gps_long"]);
+              print("join the wait line with status: "+statusCode);
+              isWorking=true;//trigger on
 
-              var directions=await  LocationService().getDirection(
-                  _originController.text, _destinationController.text
+              //_goToPlace(_client.gpsLat,_client.gpsLong);// client place
+
+              var directions=await  LocationService().getSocketDirection(
+                  _pos.latitude, _pos.longitude,
+                       _client.gpsLat ,_client.gpsLong
               );
-              _goToPlace(directions['start_location']['lat'],directions['start_location']['lng']);
-
-              _setPolyline(directions['polyline_decoded']);*/
+              print("json String: "+directions.toString());
+              _goToPlace(directions['end_location']['lat'],directions['end_location']['lng']);
+              _setDriverMarker(LatLng(_pos.latitude, _pos.longitude));
+              _setPolyline(directions['polyline_decoded']);
             }
           else
             {
-              //khong tim thay khach hang
+              //khong tim thay khach hang hoca loi khac
             }
         } ,
 
@@ -163,13 +179,15 @@ class ActionMapState extends State<ActionScreen> {
         icon: const Icon(Icons.car_rental),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+
     );
   }
-  Future<Response> _postRequestToSearchForClient() async
+  /*Future<String> _postRequestToSearchForClient() async
   {
-      Response res=await DriverService(_tokens).postRequestToSearchForClient(_pos);
-      return res;
-  }
+      *//*Response res=await DriverService(_tokens).postRequestToSearchForClient(_pos);*//*
+      //return await this._socketConnect.postRequestToSearchForClient(pos, _tokens.accessToken);
+    return  test.onConnectCallback(pos, _tokens.accessToken);
+  }*/
   Future<void> _goToPlace(
       //Map<String,dynamic> place
       double lat,
@@ -181,24 +199,94 @@ class ActionMapState extends State<ActionScreen> {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(target:LatLng(lat,lng),zoom:19),
+          CameraPosition(target:LatLng(lat,lng),zoom:18),
         ));
 
-    _setMarker(LatLng(lat,lng));
+    _setClientMarker(LatLng(lat,lng));
   }
 
-  void _setMarker(LatLng point)
+  void _setClientMarker(LatLng point)
   {
     setState((){
       _markers.add(
         Marker(
           markerId:MarkerId('_clientPos'),
           position: point,
-          infoWindow: InfoWindow(title:'Khách hàng'),
+          infoWindow: InfoWindow(title:'Tên khách hàng: '+_client.tenkhachhang ,snippet:'Số điện thoai:'+_client.sdt),
           icon:BitmapDescriptor.defaultMarker,
         ),
       );
     });
+  }
+  void _setDriverMarker(LatLng point)
+  {
+    setState((){
+      _markers.add(
+        Marker(
+          markerId:MarkerId('_driverPos'),
+          position: point,
+          infoWindow: InfoWindow(title:'Tài xế'),
+          icon:BitmapDescriptor.defaultMarker,
+        ),
+      );
+    });
+  }
+  Future<void> _joinStageNotification() async
+  {
+      String status =await socketConnection.isJoinTheSearchClient();
+
+      // Display the half-invisible notification
+      if(status=="200") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                ),
+                SizedBox(width: 8), // Adjust the spacing as needed
+                Expanded(
+                  child: Text(
+                    'Đã thành công gia nhập hàng đợi để tìm kiếm khách hàng',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.black.withOpacity(0.5),
+            duration: Duration(seconds: 15),
+          ),
+        );
+      }
+      else
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(
+                    Icons.close,
+                    color: Colors.red,
+                  ),
+                  SizedBox(width: 8), // Adjust the spacing as needed
+                  Expanded(
+                    child: Text(
+                      'Thất bại gia nhập hàng đợi để tìm kiếm khách hàng',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.black.withOpacity(0.5),
+              duration: Duration(seconds: 15),
+            ),
+          );
+        }
   }
   // Future<void> updateCurrentDriverPos(id) async {
   //   final GoogleMapController controller = await _controller.future;

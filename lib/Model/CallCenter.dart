@@ -4,7 +4,6 @@ class CallCenter{
   late String _tenkhachhang;
   late String _sdt;
   late int LoaiXe;
-  late String _diemDon;
   late double _gpsLat;
   late double _gpsLong;
 
@@ -13,6 +12,13 @@ class CallCenter{
   late String _phuong;
   late String _quan;
   late String _thanhpho;
+  late String _statusCode;
+
+  String get statusCode => _statusCode;
+
+  set statusCode(String value) {
+    _statusCode = value;
+  }
 
   String get tenkhachhang => _tenkhachhang;
 
@@ -27,11 +33,6 @@ class CallCenter{
     _sdt = value;
   }
 
-  String get diemDon => _diemDon;
-
-  set diemDon(String value) {
-    _diemDon = value;
-  }
 
   double get gpsLat => _gpsLat;
 
@@ -74,4 +75,18 @@ class CallCenter{
   set thanhpho(String value) {
     _thanhpho = value;
   }
+
+
+  CallCenter(
+      this.Id,
+      this._tenkhachhang,
+      this._sdt,
+      this._gpsLat,
+      this._gpsLong,
+      this._sonha,
+      this._duong,
+      this._phuong,
+      this._quan,
+      this._thanhpho
+      ,this._statusCode);
 }

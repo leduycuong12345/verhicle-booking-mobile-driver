@@ -20,17 +20,18 @@ class DriverService{
   ///
   /// When the location services are not enabled or permissions
   /// are denied the `Future` will return an error.
-  Future<Response> postRequestToSearchForClient( LatLng pos) async {
+  /*Future<Response> postRequestToSearchForClient( LatLng pos) async {
     const JsonEncoder encoder = JsonEncoder();
     var data = {'driverLat':pos.latitude , 'driverLong': pos.longitude};
     print("post request driver lat lng:"+encoder.convert(data));
     Response res=await APIConnection(_tokens).postRequest(searchClientURL, encoder.convert(data));
     return res;
-  }
+  }*/
   Future<LatLng> getCurrentDriverPosition() async {
     Position pos=await _determinePosition();
     print ("current driver lat:"+pos.latitude.toString()+",long:"+pos.longitude.toString());
-    return LatLng(pos.latitude,pos.longitude);
+    //return LatLng(pos.latitude,pos.longitude); //for production only
+    return LatLng(10.862716, 106.801871);//for debug only
   }
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
