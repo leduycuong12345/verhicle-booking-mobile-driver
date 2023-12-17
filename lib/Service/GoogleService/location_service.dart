@@ -81,7 +81,7 @@ class LocationService{
     print("json: " + prettyJson);
 
 
-    if(json["status"]=="OVER_QUERY_LIMIT")
+    if(json["status"]=="OVER_QUERY_LIMIT" || json["status"]=="ZERO_RESULTS")
       {
         print("over limit error wait for 10seconds");
         await Future.delayed(const Duration(seconds: 10));

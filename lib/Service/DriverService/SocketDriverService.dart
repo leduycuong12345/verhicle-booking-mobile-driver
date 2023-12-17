@@ -166,5 +166,157 @@ class SocketDriverService{
          jsonMap["securityStatus"].toString());
 
   }
+  Future<void> beg() async {
+    stompClient = StompClient(
+      config:  StompConfig(
+        url: 'ws://10.0.2.2:8069/socket/gs-mobile-websocket',
+        onConnect: await onBegToConfirmConnectCallback,
+        onWebSocketError: onWebSocketErrorCallback,
+      ),
+    );
+    stompClient.activate();
+  }
+  bool begResult=false;
+  Future<bool> isTheClosestOneCanConfirm() async
+  {
+    if(begResult==false)
+    {
+      print('this s not u turn to confirm ');
+      beg();
+      //if not initz yet then wait for 5 sec then call this againt
+      await Future.delayed(const Duration(seconds: 5));
+      return isTheClosestOneCanConfirm();
+    }
+    else
+    {
+      print('time to confirm something');
+      return begResult;
+    }
+  }
+  Future<void> onBegToConfirmConnectCallback(StompFrame frame) async{
+    Map<String, dynamic> credentials = {
+    };
+    String message = jsonEncode(credentials);
 
+    //test sending
+    stompClient.send(destination: '/socket/driver/beg', body: message, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    });
+
+
+    stompClient.subscribe(
+      destination: '/socket/driver/beg-result',
+      callback: (StompFrame frame) {
+        print('begging result : ${frame.body}');
+        // end the subcribe
+        this.begResult=bool.parse(frame.body.toString());
+        stompClient.deactivate();
+        // Access the "driver_ID" field
+
+      },
+    );
+  }
+  Future<void> confirm() async {
+    stompClient = StompClient(
+      config:  StompConfig(
+        url: 'ws://10.0.2.2:8069/socket/gs-mobile-websocket',
+        onConnect: await onConfirmConnectCallback,
+        onWebSocketError: onWebSocketErrorCallback,
+      ),
+    );
+    stompClient.activate();
+  }
+  bool confirmResult=false;
+  Future<bool> getConfirmResult() async
+  {
+    if(confirmResult==false)
+    {
+      print('this s not u turn to confirm ');
+      confirm();
+      //if not initz yet then wait for 5 sec then call this againt
+      await Future.delayed(const Duration(seconds: 5));
+      return getConfirmResult();
+    }
+    else
+    {
+      print('time to confirm something');
+      return confirmResult;
+    }
+  }
+  Future<void> onConfirmConnectCallback(StompFrame frame) async{
+    Map<String, dynamic> credentials = {
+    };
+    String message = jsonEncode(credentials);
+
+    //test sending
+    stompClient.send(destination: '/socket/driver/confirm', body: message, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    });
+
+
+    stompClient.subscribe(
+      destination: '/socket/driver/confirm-result',
+      callback: (StompFrame frame) {
+        print('confirm result : ${frame.body}');
+        // end the subcribe
+        this.confirmResult=bool.parse(frame.body.toString());
+        stompClient.deactivate();
+        // Access the "driver_ID" field
+
+      },
+    );
+  }
+  Future<void> leave() async {
+    stompClient = StompClient(
+      config:  StompConfig(
+        url: 'ws://10.0.2.2:8069/socket/gs-mobile-websocket',
+        onConnect: await onDenyConnectCallback,
+        onWebSocketError: onWebSocketErrorCallback,
+      ),
+    );
+    stompClient.activate();
+  }
+  bool leaveResult=false;
+  Future<bool> getLeaveResult() async
+  {
+    if(leaveResult==false)
+    {
+      print('this s not u turn to deny ');
+      leave();
+      //if not initz yet then wait for 5 sec then call this againt
+      await Future.delayed(const Duration(seconds: 5));
+      return getLeaveResult();
+    }
+    else
+    {
+      print('time to deny something');
+      return leaveResult;
+    }
+  }
+  Future<void> onDenyConnectCallback(StompFrame frame) async{
+    Map<String, dynamic> credentials = {
+    };
+    String message = jsonEncode(credentials);
+
+    //test sending
+    stompClient.send(destination: '/socket/driver/leave', body: message, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    });
+
+
+    stompClient.subscribe(
+      destination: '/socket/driver/leave-result',
+      callback: (StompFrame frame) {
+        print('confirm result : ${frame.body}');
+        // end the subcribe
+        this.leaveResult=bool.parse(frame.body.toString());
+        stompClient.deactivate();
+        // Access the "driver_ID" field
+
+      },
+    );
+  }
 }

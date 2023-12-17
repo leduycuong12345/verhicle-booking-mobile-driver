@@ -104,49 +104,143 @@ class ActionMapState extends State<ActionScreen> {
       ),
     );
   }
+  bool isJoinButtonVisible=true;
+  bool isConfirmButtonVisible=false;
+  bool isDenyButtonVisible=false;
+  bool isClosestDriver=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title:Text('Google Maps'),),
-      body:GoogleMap(
-        mapType: MapType.normal,
-        markers:_markers,
-        polygons: _polygons,
-        polylines: _polylines,
-        initialCameraPosition: CameraPosition(//starter from driver position
-          target: LatLng(_pos.latitude,_pos.longitude),
-          zoom: 18,
-        ),
-        /*markers:{
-          Marker( //driver marker
-          markerId:MarkerId ('_driverPos'),
-          infoWindow: InfoWindow(title:'Tài xế'),
-          icon:BitmapDescriptor.defaultMarker,
-          position: LatLng(_pos.latitude,_pos.longitude),
-          ),
-        markers: {
-          _markers,
-        },*/
-        onMapCreated: (GoogleMapController controller) async{
-          _controller.complete(controller);
-          _setDriverMarker(_pos);
-          //LatLng pos=await DriverService(this._tokens).getCurrentDriverPosition();
-          //await _goToPlace(pos.latitude,pos.longitude);
-        },
-          zoomControlsEnabled: false,
-          zoomGesturesEnabled: true,
-          scrollGesturesEnabled: true,
-          compassEnabled: true,
-          rotateGesturesEnabled: true,
-          mapToolbarEnabled: true,
-          tiltGesturesEnabled: true,
-          gestureRecognizers: < Factory < OneSequenceGestureRecognizer >> [
-            new Factory < OneSequenceGestureRecognizer > (
-                  () => new EagerGestureRecognizer(),
+      body:Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            markers:_markers,
+            polygons: _polygons,
+            polylines: _polylines,
+            initialCameraPosition: CameraPosition(//starter from driver position
+              target: LatLng(_pos.latitude,_pos.longitude),
+              zoom: 18,
             ),
-          ].toSet() // Enable zoom controls
+            /*markers:{
+              Marker( //driver marker
+              markerId:MarkerId ('_driverPos'),
+              infoWindow: InfoWindow(title:'Tài xế'),
+              icon:BitmapDescriptor.defaultMarker,
+              position: LatLng(_pos.latitude,_pos.longitude),
+              ),
+            markers: {
+              _markers,
+            },*/
+            onMapCreated: (GoogleMapController controller) async{
+              _controller.complete(controller);
+              _setDriverMarker(_pos);
+              //LatLng pos=await DriverService(this._tokens).getCurrentDriverPosition();
+              //await _goToPlace(pos.latitude,pos.longitude);
+            },
+              zoomControlsEnabled: false,
+              zoomGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              compassEnabled: true,
+              rotateGesturesEnabled: true,
+              mapToolbarEnabled: true,
+              tiltGesturesEnabled: true,
+              gestureRecognizers: < Factory < OneSequenceGestureRecognizer >> [
+                new Factory < OneSequenceGestureRecognizer > (
+                      () => new EagerGestureRecognizer(),
+                ),
+              ].toSet() // Enable zoom controls
+          ),
+          Positioned(
+            bottom: 16.0,
+            left: 0.0,
+            right: 0.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+              Visibility(
+              visible: isJoinButtonVisible,
+              child: ElevatedButton(
+                onPressed:()async{
+                  await driverConnectToServer(); // finish stage 1
+                  await receiveClientInfo_Stage();//finish stage 2
+                  await this.socketConnection.beg(); //start stage 3
+                  isClosestDriver = await this.socketConnection.isTheClosestOneCanConfirm();
+                  if(isClosestDriver)
+                    {
+                      setState(() {
+                        isDenyButtonVisible=true;
+                        isConfirmButtonVisible=true;
+                      });
+
+                    }
+                } ,
+                child:Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.car_rental), // Replace with your desired icon
+                    SizedBox(width: 8.0), // Adjust the spacing as needed
+                    Text('Tìm kiếm khách hàng'),
+                  ],
+                ),
+              ),
+            ),
+                Visibility(
+                  visible: isConfirmButtonVisible,
+                  child: ElevatedButton(
+                    onPressed:()async{
+                      await this.socketConnection.confirm();
+                      bool confirmResult=await this.socketConnection.getConfirmResult();
+                      if(confirmResult)
+                        {
+                          setState(() {
+                            isDenyButtonVisible=false;
+                            isConfirmButtonVisible=false;
+                          });
+                          _successToConfirmNotification();
+                        }
+                    } ,
+                    child:Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.car_rental), // Replace with your desired icon
+                        SizedBox(width: 8.0), // Adjust the spacing as needed
+                        Text('Chấp nhận chuyến đi'),
+                      ],
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: isDenyButtonVisible,
+                  child: ElevatedButton(
+                    onPressed:()async{
+                      await this.socketConnection.leave();
+                      bool denyResult=await this.socketConnection.getLeaveResult();
+                      if(denyResult)
+                      {
+                        setState(() {
+                          isDenyButtonVisible=false;
+                          isConfirmButtonVisible=false;
+                        });
+                        _successToDenyNotification();
+                      }
+                    } ,
+                    child:Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.car_rental), // Replace with your desired icon
+                        SizedBox(width: 8.0), // Adjust the spacing as needed
+                        Text('Từ chối chuyến đi'),
+                      ],
+                    ),
+                  ),
+                ),
+            ]
+          ),)
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      /*floatingActionButton: FloatingActionButton.extended(
         onPressed:()async{
           await driverConnectToServer(); // finish stage 1
           await receiveClientInfo_Stage();//finish stage 2
@@ -155,7 +249,7 @@ class ActionMapState extends State<ActionScreen> {
         label: const Text('Tìm kiếm khách hàng'),
         icon: const Icon(Icons.car_rental),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,*/
 
     );
   }
@@ -245,6 +339,7 @@ class ActionMapState extends State<ActionScreen> {
   }
   Future<void> _successReceiveClientInfoNotification() async
   {
+    isJoinButtonVisible=false;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -256,7 +351,7 @@ class ActionMapState extends State<ActionScreen> {
             SizedBox(width: 8), // Adjust the spacing as needed
             Expanded(
               child: Text(
-                'Nhận được thông tin khách hàng',
+                'Nhận được thông tin khách hàng và tiến hành đợi xác nhận',
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
                 style: TextStyle(color: Colors.white),
@@ -283,6 +378,60 @@ class ActionMapState extends State<ActionScreen> {
             Expanded(
               child: Text(
                 'Không được thông tin khách hàng',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.black.withOpacity(0.5),
+        duration: Duration(seconds: 15),
+      ),
+    );
+  }
+  Future<void> _successToConfirmNotification() async
+  {
+    isJoinButtonVisible=false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
+            SizedBox(width: 8), // Adjust the spacing as needed
+            Expanded(
+              child: Text(
+                'Lấy chuyến đi thành công chúc bạn vui vẻ.',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.black.withOpacity(0.5),
+        duration: Duration(seconds: 15),
+      ),
+    );
+  }
+  Future<void> _successToDenyNotification() async
+  {
+    isJoinButtonVisible=false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
+            SizedBox(width: 8), // Adjust the spacing as needed
+            Expanded(
+              child: Text(
+                'Từ chối chuyến đi thành công chúc bạn vui vẻ.',
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
                 style: TextStyle(color: Colors.white),
